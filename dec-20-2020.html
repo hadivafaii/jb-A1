@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>December, 19th 2020 &#8212; A1 Tone Discrimination [Daily Progress]</title>
+    <title>December, 20th 2020 &#8212; A1 Tone Discrimination [Daily Progress]</title>
     
   <link rel="stylesheet" href="_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -207,6 +207,49 @@
     <!-- Table of contents -->
     <div class="d-none d-md-block col-md-2 bd-toc show">
         
+        <div class="tocsection onthispage pt-5 pb-3">
+            <i class="fas fa-list"></i> Contents
+        </div>
+        <nav id="bd-toc-nav">
+            <ul class="nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pca-analysis">
+   PCA analysis
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pca-using-full-traces">
+     PCA using full traces
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pca-using-stim-presentation-period-only">
+     PCA using stim presentation period only
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#visualizing-pc-dimensions">
+     Visualizing PC dimensions
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#discussion">
+   Discussion
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#temporal-profile-of-individual-traces-is-low-dimensional">
+     temporal profile of individual traces is low dimensional
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+        </nav>
+        
     </div>
 </div>
     <div id="main-content" class="row">
@@ -214,14 +257,16 @@
         
               <div>
                 
-  <div class="section" id="december-19th-2020">
-<h1>December, 19th 2020<a class="headerlink" href="#december-19th-2020" title="Permalink to this headline">¶</a></h1>
-<p><strong>Motivation</strong>: Simple dimensionality analysis using PCA.<br>
-<strong>Result</strong>: Data is high dimensional.  We need ??? dimensions to explain 70% of variance for all responses from all trial types. We need ??? dims to explain 70% variance of hit trials and so on</p>
+  <div class="section" id="december-20th-2020">
+<h1>December, 20th 2020<a class="headerlink" href="#december-20th-2020" title="Permalink to this headline">¶</a></h1>
+<p><strong>Motivation</strong>: Simple dimensionality analysis using PCA in time dimension (not in neuron dimension).<br>
+<strong>Result</strong>: Time evolution of traces is low dimensional.  With only 6 dimensions, we can explain around <span class="math notranslate nohighlight">\(80\%\)</span> of the variance.  Furthermore, we can explain <span class="math notranslate nohighlight">\(90\%\)</span> of the variance with 4 dimensions if we focus on stimulus presentation period only.  This does not necessarily mean that the dynamics is low dimensional.  We just show that typical shapes and trends that individual traces follow (in a bag of neuron setting) are low dimensional.</p>
 <div class="cell tag_hide-input docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># HIDE CODE</span>
 
+
+<span class="c1"># imports</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
@@ -242,8 +287,179 @@
 <span class="kn">from</span> <span class="nn">utils.process</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">utils.generic_utils</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">utils.plot_functions</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># load data</span>
+<span class="n">dirs_dict</span> <span class="o">=</span> <span class="n">get_dirs</span><span class="p">()</span>
+<span class="n">output_trial</span><span class="p">,</span> <span class="n">output_freq</span> <span class="o">=</span> <span class="n">bag_of_neurons</span><span class="p">(</span><span class="n">dirs_dict</span><span class="p">[</span><span class="s1">&#39;h_load_file&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="pca-analysis">
+<h2>PCA analysis<a class="headerlink" href="#pca-analysis" title="Permalink to this headline">¶</a></h2>
+<p>Here I take all responses and again put them in a bag of neurons.  Then fit a PCA transformation in the time dimension.  The reason behind this is I would like to know how diverse these traces are.  Do I need 5 dimensions to explain <span class="math notranslate nohighlight">\(80\%\)</span> of the variance or do I need 50?</p>
+<div class="section" id="pca-using-full-traces">
+<h3>PCA using full traces<a class="headerlink" href="#pca-using-full-traces" title="Permalink to this headline">¶</a></h3>
+<p>Here the mapping is from 135-dimensional raw space into PC space.</p>
+<div class="cell tag_hide-input docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># HIDE CODE</span>
+
+
+<span class="c1"># fit PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span>
+
+<span class="n">x_tst</span> <span class="o">=</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;dff&#39;</span><span class="p">][</span><span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;tst_indxs&#39;</span><span class="p">]]</span>
+<span class="n">x_trn</span> <span class="o">=</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;dff&#39;</span><span class="p">][</span><span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;trn_indxs&#39;</span><span class="p">]]</span>
+
+<span class="n">pca_results_full</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">n_components</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span>
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_trn</span><span class="p">)</span>
+    <span class="n">x_pred</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x_tst</span><span class="p">))</span>
+    <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;n_components&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">n_components</span><span class="p">,</span> <span class="n">n_components</span><span class="p">],</span>
+        <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;explained_variance&#39;</span><span class="p">,</span> <span class="s1">&#39;reconstruction_r2&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">x_tst</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">pca_results_full</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pca_results_full</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)])</span>
+
+<span class="c1"># plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pca_results_full</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;n_components&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span>
+             <span class="n">style</span><span class="o">=</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span> <span class="n">markers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dashes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;# PC componens vs. i) percent variance explained, and ii) reconstruction $R^2$ score on test data</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;we see that as few as $6$ dimensions are needed to explain &#39;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;around $80\%$ of variance and above $70\%$ reconstruction&#39;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/dec-20-2020_3_0.png" src="_images/dec-20-2020_3_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="pca-using-stim-presentation-period-only">
+<h3>PCA using stim presentation period only<a class="headerlink" href="#pca-using-stim-presentation-period-only" title="Permalink to this headline">¶</a></h3>
+<p>Here I choose <span class="math notranslate nohighlight">\(t \in [30, 75)\)</span> as period of interest. The mapping is from 45-dimensional raw space into PC space.  Therefore, just because of smaller initial space I expect more variance will be explained with fewer number of components relative to the full case.</p>
+<div class="cell tag_hide-input docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># HIDE CODE</span>
+
+<span class="n">trange</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span>
+
+<span class="c1"># fit PCA</span>
+<span class="n">pca_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">n_components</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">)):</span>
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_trn</span><span class="p">[:,</span> <span class="n">trange</span><span class="p">])</span>
+    <span class="n">x_pred</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x_tst</span><span class="p">[:,</span> <span class="n">trange</span><span class="p">]))</span>
+    <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;n_components&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">n_components</span><span class="p">,</span> <span class="n">n_components</span><span class="p">],</span>
+        <span class="s1">&#39;metric&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;explained_variance&#39;</span><span class="p">,</span> <span class="s1">&#39;reconstruction_r2&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">x_tst</span><span class="p">[:,</span> <span class="n">trange</span><span class="p">],</span> <span class="n">x_pred</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">pca_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pca_results</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)])</span>
+
+<span class="c1"># plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pca_results</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;n_components&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span>
+             <span class="n">style</span><span class="o">=</span><span class="s1">&#39;metric&#39;</span><span class="p">,</span> <span class="n">markers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dashes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;results on stim presentation period only $t \in [30, 75)$</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;here with only $3$ dimensions we already surpass $85\%$ threshold</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;data is low dimensional, even more so in the restricted stim presentation period&#39;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 30/30 [00:35&lt;00:00,  1.18s/it]
+</pre></div>
+</div>
+<img alt="_images/dec-20-2020_5_1.png" src="_images/dec-20-2020_5_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="visualizing-pc-dimensions">
+<h3>Visualizing PC dimensions<a class="headerlink" href="#visualizing-pc-dimensions" title="Permalink to this headline">¶</a></h3>
+<p>Here I plot the top 3 PC dimensions, for both full and limited case.  Also we see that PC dimensions learned using data from different trials don’t look that different and they explain more or less the same amount of variance.</p>
+<div class="cell tag_hide-input docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># HIDE CODE</span>
+
+
+<span class="c1"># fit PCA</span>
+<span class="n">trials</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">trial</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">pca_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">trials</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">trial</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+        <span class="n">tst_indxs</span> <span class="o">=</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;tst_indxs&#39;</span><span class="p">]</span>
+        <span class="n">trn_indxs</span> <span class="o">=</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;trn_indxs&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">trial</span> <span class="o">==</span> <span class="n">trial</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tst_indxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;tst_indxs&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indxs</span><span class="p">]</span>
+        <span class="n">trn_indxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;trn_indxs&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indxs</span><span class="p">]</span>
+    <span class="n">x_tst</span> <span class="o">=</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;dff&#39;</span><span class="p">][</span><span class="n">tst_indxs</span><span class="p">]</span>
+    <span class="n">x_trn</span> <span class="o">=</span> <span class="n">output_trial</span><span class="p">[</span><span class="s1">&#39;dff&#39;</span><span class="p">][</span><span class="n">trn_indxs</span><span class="p">]</span>
+
+    <span class="n">pca_full</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_trn</span><span class="p">)</span>
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_trn</span><span class="p">[:,</span> <span class="n">trange</span><span class="p">])</span>
+    
+    <span class="n">pca_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">trial</span><span class="p">:</span> <span class="p">(</span><span class="n">pca_full</span><span class="p">,</span> <span class="n">pca</span><span class="p">)})</span>
+
+<span class="c1"># plot</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s1">&#39;whitegrid&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">trial</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pca_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+    <span class="n">pca_full</span><span class="p">,</span> <span class="n">pca</span> <span class="o">=</span> <span class="n">pca_dict</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span>
+    
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">135</span><span class="p">),</span> <span class="n">pca_full</span><span class="o">.</span><span class="n">components_</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trange</span><span class="p">,</span> <span class="n">pca</span><span class="o">.</span><span class="n">components_</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1"> - var explnd:  </span><span class="si">{:.1f}{:s}</span><span class="s1">&#39;</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pca_full</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;%&#39;</span><span class="p">))</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;%&#39;</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">axvspan</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;lightgrey&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">xticks</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">135</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">trange</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">trange</span><span class="o">.</span><span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">xticks</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">t</span> <span class="o">/</span> <span class="mi">30</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">xticks</span><span class="p">])</span>
+        <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;t (s)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="n">msg</span> <span class="o">=</span><span class="s1">&#39;top 3 PC dimensions obtained using full responses (1st row) and stim presentation period only (2nd row)&#39;</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                             
+</pre></div>
+</div>
+<img alt="_images/dec-20-2020_7_1.png" src="_images/dec-20-2020_7_1.png" />
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="temporal-profile-of-individual-traces-is-low-dimensional">
+<h3>temporal profile of individual traces is low dimensional<a class="headerlink" href="#temporal-profile-of-individual-traces-is-low-dimensional" title="Permalink to this headline">¶</a></h3>
+<p>This analysis is not really informative, but wanted to quickly do it and keep it here for the record.  The real question is dimensionality reduction in neuron space.  How can we take a trial with <span class="math notranslate nohighlight">\(nc\)</span> neurons and project it down to a low dimensional space, while maintaining predictive power about trial labels?  This will be the subject of following sections.</p>
 </div>
 </div>
 </div>
