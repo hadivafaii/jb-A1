@@ -379,10 +379,10 @@
                 
   <div class="section" id="january-17th-2020">
 <h1>January, 17th 2020<a class="headerlink" href="#january-17th-2020" title="Permalink to this headline">¶</a></h1>
-<p><strong>Motivation</strong>: Combining datasets using Canonical Correlation Analysis (CCA). Can we find shared latent dimensions that have large correlation across datasets?</p>
+<p><strong>Motivation</strong>: Combining datasets using Canonical Correlation Analysis (CCA).  Can we find shared dimensions with maximum correlation among datasets?</p>
 <ul class="simple">
 <li><p>By mapping data from neuron space to this common space, we can combine data across experiments for the classification analysis.</p></li>
-<li><p>This kind of analysis can potentially uncover universal cortical computations present in all subjects and experiments.  We can then try to distinguish these invariante signals from idiosyncratic, subject-dependent signals. <br></p></li>
+<li><p>This kind of analysis can potentially uncover universal cortical computations present in all subjects and experiments.  We can then try to distinguish these invariant signals from idiosyncratic, subject-dependent signals. <br></p></li>
 </ul>
 <p><strong>Result</strong>: Preliminary results show that this is possible.  Thorough analysis is needed to understand the nature and content of the canonical space.</p>
 <div class="cell tag_hide-input docutils container">
@@ -642,29 +642,31 @@ train: 405,  test: 95
 <p>Here we want to see if information about trial types is preseved after projecting into the canonical space.  One benefit of doing this operation is we can now combine data from different experiments.  Without using CCA, this was not possible and our analysis was limited to case-by-case only.</p>
 <div class="section" id="why-combine-datasets">
 <h3>Why combine datasets?<a class="headerlink" href="#why-combine-datasets" title="Permalink to this headline">¶</a></h3>
-<p>First, using more data usually leads to more accurate results in general, but this is not my main motivation.  More importantly, studying these datasets together will enable us to learn about the shared variability between them.  What are these neurons talking about?  How much of this computation is subject invariant and is found globally, and how much of it is idiosyncratic? By combining data together, we will potentially learn about invariant cortical computations in A1 before decisions occur.</p>
+<p>First, in general larger datasets usually lead to more accurate results, but this is not my main motivation.  More importantly, studying these datasets together will enable us to extract sources of shared variability between them.  What are these neurons talking about?  How much of this computation is global and subject-invariant, and how much of it is idiosyncratic? By combining data together, we can try to learn about invariant cortical computations in A1 that are informative about the decisions about to occur.</p>
 </div>
 <div class="section" id="train-validate-test">
 <h3>Train/validate/test<a class="headerlink" href="#train-validate-test" title="Permalink to this headline">¶</a></h3>
-<p>Now let’s discuss how we can make sure that the model is learning meaningful structures.  We would want to split the data into:</p>
-<ol class="simple">
+<p>Now let’s discuss how we can make sure the model is learning meaningful structures and not fitting noise.  We would want to split the data into:</p>
+<ul class="simple">
 <li><p>a training set to fit the models,</p></li>
 <li><p>a validation set to choose hyperparameters with, and</p></li>
 <li><p>a test set that is hidden from the model from beginning to end.</p></li>
-</ol>
-<p>This ideal case is not possible (at least trivially) since we want to combine datasets with different number of neurons that are organized arbitrarily. I will go over some options we have below and discuss why the ideal case is not possible.</p>
+</ul>
+<p>The ideal case in which we set aside data from a whole experiment for testing is not possible (at least trivially) since we want to combine datasets with different number of neurons that are organized arbitrarily. I will go over some options we have below and discuss why the ideal case is not possible.</p>
 <div class="section" id="the-best-option">
 <h4>The best option:<a class="headerlink" href="#the-best-option" title="Permalink to this headline">¶</a></h4>
-<p>In an ideal world, we would want to train a CCA, and subsequently, a classifier using training set then select best hyperparameters using validation set. Then, we want to apply the fitted models to the test set to make sure the learend dimensions are meanigful and generalize across subjects.  This is not a well defined scenario when we are using CCA.</p>
-<p>To see why, imagine we select one of the experiment with <span class="math notranslate nohighlight">\(nc\)</span> neurons to act as our held-out test set.  After fitting CCA, we would have 4 loading matrices <span class="math notranslate nohighlight">\(a_\mu \in \mathbb{R}^{nc_\mu \,\times\, K}\)</span> that map data from the 4 experiments into the <span class="math notranslate nohighlight">\(K-\)</span>dimensional shared canonical space.  Then, we use the trained CCA model to project these data from neuron space to canonical space, use <span class="math notranslate nohighlight">\(80\%\)</span> training data to train and the remaining <span class="math notranslate nohighlight">\(20\%\)</span> to validate and select our hyperparameters.  Once training classifier is done, we now want to test the fitted models on the held out experiment.  How can we do this?  This experiment has <span class="math notranslate nohighlight">\(nc\)</span> neurons and it needs its own loading matrix <span class="math notranslate nohighlight">\(a \in \mathbb{R}^{nc \,\times\, K}\)</span> but we don’t have it since we excluded this experiment from every step of model fitting.  Here one might thing about other nontrivial ways of getting this to work by looking at correlations or means etc of the held out data to infer a loading vector for it, but this ignores the whole purpose of CCA, which is to learn a common space shared between different subjects.  Now I will offer a second best option that might be just what we need.</p>
+<p>Ideally, we would like to train a CCA followed by a classifier that discriminates between hits and misses using data projected into the canonical space.  We want to train using a training set and select best hyperparameters using validation set. Then, we want to apply the fitted models to the test set to make sure the learend dimensions are meanigful and generalize across subjects.  This is not a well defined scenario when we are using CCA.</p>
+<p>To see why, imagine we select one of the experiment with <span class="math notranslate nohighlight">\(nc\)</span> neurons to act as our held-out test set.  After fitting CCA, we would have 4 loading matrices <span class="math notranslate nohighlight">\(a_\mu \in \mathbb{R}^{nc_\mu \,\times\, K}\)</span> that map data from the 4 experiments into the <span class="math notranslate nohighlight">\(K-\)</span>dimensional shared canonical space.  Then, we use the trained CCA model to project these data from neuron space to canonical space, use <span class="math notranslate nohighlight">\(80\%\)</span> training data to train and the remaining <span class="math notranslate nohighlight">\(20\%\)</span> to validate and select our hyperparameters.  Once training the classifier is done, we now want to test the fitted models on the held out experiment.  How can we do this?  This experiment has <span class="math notranslate nohighlight">\(nc\)</span> neurons and it needs its own loading matrix <span class="math notranslate nohighlight">\(a \in \mathbb{R}^{nc \,\times\, K}\)</span> but we don’t have it since we excluded this experiment from every step of model fitting.  This is the main problem I was trying to communicate.  Of course, not having a loading matrix should not be a problem for a strong, general model.  How can we solve this then?  One might think about other nontrivial ways of getting this to work by looking at correlations between neurons from the held out data to neurons present in the training set to infer a loading vector for it.  I will certainly try it, but this approach ignores the whole purpose of CCA: <em>to learn a common space shared among different subjects and experiments</em>.  Now I will present a second best option that makes more sense and might be just what we need.</p>
 </div>
 <div class="section" id="the-2nd-best-option">
 <h4>The 2nd best option:<a class="headerlink" href="#the-2nd-best-option" title="Permalink to this headline">¶</a></h4>
-<p>As I explained, the absolute ideal scenario does not make sense, so here is what we can do:</p>
+<p>As discussed above, the absolute ideal scenario does not make sense in the context of CCA, so here is something else we can do:</p>
+<ol class="simple">
+<li><p>Use data from all 5 experiments to fit CCA and learn all loading matrices.  Still do the 80/20 % within-experiment split and use predicted correlations to choose the best number of components and regularization.</p></li>
+<li><p>After fitting the CCA is done, use data from all experiments but one for the classification. This is fine because we have loading matrices for all of these experiments.  If the shared dimensions are truly meanigful, training a classifier using data from some experiments and testing on a held out one makes sense now.</p></li>
+<li><p>Fit a classifier using 4 training experiments (still sticking to the within experiment 80/20 % train/validation split) and choose classifier hyperparameters.</p></li>
+</ol>
 <ul class="simple">
-<li><p>Use data from all 5 experiments to fit CCA and learn all loading matrices.  Still do the 80/20 % split and use predicted correlations to choose the best number of components and regularization.</p></li>
-<li><p>After learning the CCA is done, now put aside all the data from one experiment and use that as test set.</p></li>
-<li><p>Fit a classifier using 4 training experiments (still sticking to the within experiment 80/20 % split) and choose classifier hyperparameters.</p></li>
 <li><p>Test the leanred classifier on the held out experiment.  This is possible now because we have a loading matrix for this one, no problem.</p></li>
 </ul>
 <p>Before presenting preliminary results I want to discuss this issue a little bit more.</p>
@@ -672,15 +674,22 @@ train: 405,  test: 95
 </div>
 <div class="section" id="a-grand-challenge-in-neuroscience">
 <h3>A grand challenge in neuroscience<a class="headerlink" href="#a-grand-challenge-in-neuroscience" title="Permalink to this headline">¶</a></h3>
-<p>Now let’s allow our imaginations to run really wild and think about the best possible model of the brain. This model has a few inputs, including:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- experimenal conditions such as stimuli presented, and
+<p>Now let’s allow our imaginations to run really wild and think about the best possible model of the brain.  What would this model look like? It will have a few inputs including:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- relevant degrees of freedom in the state of the world during the experiment, e.g. stimuli presented, and other experimentally controlable variables,
 - neural activity recorded from a subset of neurons from a subset of relevant regions in the brain during and after stimulus presentation
 </pre></div>
 </div>
-<p>It then uses this information to accuraterly predict the resulting behavior that occurs following stimulation.  This model should not care about the number of neurons recorded because each experiment will have different number of neurons from potentially different patches of the cortex. Such a model will solve the brain to a good extent and will be nobel prize worthy.  This does not mean that I’m not thinking about this problem.  In fact, I think about this a lot, but due to magnitude and scale of this problem I still haven’t found a convincing answer yet.  I think finding global latent signals that invariably drive neurons will be an importatn step toward this grand model.  I absolutely agree that finding signals that generalize across subjects is cruicial, but it is difficult given experimental limitations that we are facing right now.</p>
+<p>The model then uses the available data to infer something about the internal state of the brain and how it was affected as a result of external perturbation.  It then uses this information to accuraterly predict the resulting behavior that occurs following stimulation.  This model should not care about the number of neurons recorded because each experiment will have different number of neurons from potentially different parts of the cortex. Such a model will solve the brain problem to a great extent and will be nobel prize worthy.  Therefore, this is a difficult problem, however it does not mean that I’m not thinking about this problem.  In fact, I think about this a lot, but due to magnitude and scale of this problem I still haven’t found a convincing answer yet.</p>
+<p>Say <span class="math notranslate nohighlight">\(X \in \mathbb{R}^{T \,\times\, N}\)</span> is a matrix that contains neural activity across time across neurons.  Its columns <span class="math notranslate nohighlight">\(x_i \in \mathbb{R}^T\)</span> contain data from individual neurons. A function that is invariant to number of neurons should be also invariant to premutation in neuron space.  It should care only about presence of a neuron, not how I’m feeding it into the model.  What are functions that have this characteristics?  A very simple function that fits this description is this one:</p>
+<div class="math notranslate nohighlight">
+\[f(X) = f(\{x_i | i = 1, \dots N\}) = \frac{1}{N}(x_1 + x_2 + \dots + x_N).\]</div>
+<p>This is just taking the average across neurons and is used in a large portion of neuroscience papers out there.  But this is not enough, how about nonlinear interactions between neurons?  Then it would make sense to generalize this function to a case where neurons themselves are not added, but a nonlinaer transformation of them are:</p>
+<div class="math notranslate nohighlight">
+\[f(X) = f(\{x_i | i = 1, \dots N\}) = \frac{1}{N}(\phi(x_1) + \phi(x_2) + \dots + \phi(x_N)),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi(x_i) = z_i\)</span> is a nonlinear function that maps each neuron into a latent space that respects additivity.  Is this enough?  How about interactions between neurons?  I think we can take this logic and construct some sort of recurrent models that still is additive, meaning that it doesn’t care about how many neurons are present in the data and in what order they are presented.  This is a long term goal and cannot be solved in a rush.  In general, I think finding a way to infer global latent signals that invariably drive neurons will be an importatn step toward this grand model.  I absolutely agree that finding signals that generalize across subjects is cruicial, but it is a difficult problem given experimental limitations that we are facing right now.</p>
 <div class="section" id="literature-review">
 <h4>Literature review<a class="headerlink" href="#literature-review" title="Permalink to this headline">¶</a></h4>
-<p>I skimmed through papers that study neural correlates of decision making (from people such as Ganguli, Shadlen, etc) and did not find a single paper that explores inter-subject generalization.  They typically have 1-2 monkeys and train/test on trials obtrained from the same subject. I think having data from many participants is a great advantage of fMRI data over other modes of data acquisition.  The other advantage is having whole brain datasets, which brings me to the next point.</p>
+<p>I skimmed through papers that study neural correlates of decision making (from people such as Shadlen, Ganguli etc) and did not find a single paper that explores inter-subject generalization.  They typically have 1-2 monkeys and train/test on trials obtrained from the same subject. I think having data from many participants is a great advantage of fMRI over other methods of data acquisition.  The other advantage is having whole brain datasets, which brings me to the next point.</p>
 </div>
 </div>
 <div class="section" id="cca-and-fmri">
@@ -730,122 +739,24 @@ mcc:		0.5771
     <span class="n">h_load_file</span><span class="o">=</span><span class="n">dirs_dict</span><span class="p">[</span><span class="s1">&#39;h_load_file&#39;</span><span class="p">],</span>
     <span class="n">n_seeds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">num_ccs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="n">cca_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
-    <span class="n">clf_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="n">num_ccs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">86</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="n">cca_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="n">clf_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "fb19fbe278e24923930e78d680ee5984", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "9c003b0789514a2ea97dba9131a76cdd", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "f2fe696490cc41009e5a73ca01f2ed03", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "", "version_major": 2, "version_minor": 0}
-</script><script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "670fc82828db478a93abf9e8e32e20c0", "version_major": 2, "version_minor": 0}
-</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># HIDE CODE</span>
 
 
-<span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./results_(2021_01_15).df&#39;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./results_cca_clf_(2021_01_17).df&#39;</span><span class="p">)</span>
 <span class="n">best</span> <span class="o">=</span> <span class="n">extract_best_hyperparams</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s1">&#39;mcc&#39;</span><span class="p">)</span>
 <span class="n">plot_results</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">best</span><span class="o">=</span><span class="n">best</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>best hyperparams:
-
-n_components:	79,
-cca_reg:	1.000e-02,
-clf_reg:	5.655e-03,
-pred_r:		0.1901
-mcc:		0.5782
-</pre></div>
-</div>
-<img alt="_images/jan-17-2020_21_1.png" src="_images/jan-17-2020_21_1.png" />
 </div>
 </div>
 </div>
@@ -876,32 +787,6 @@ mcc:		0.5782
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[PROGRESS] fitting done. results:
-corr: 0.187,   balanced accuracy: 0.702,   mcc: 0.407
-
-
-coeffs:
-
-array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-       -0.00755027,  0.01425276,  0.        ,  0.01304942])
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -916,7 +801,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_24_0.png" src="_images/jan-17-2020_24_0.png" />
+<img alt="_images/jan-17-2020_21_0.png" src="_images/jan-17-2020_21_0.png" />
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([10, 33, 75, 77, 78])
 </pre></div>
 </div>
@@ -949,7 +834,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_25_0.png" src="_images/jan-17-2020_25_0.png" />
+<img alt="_images/jan-17-2020_22_0.png" src="_images/jan-17-2020_22_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -972,7 +857,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_28_0.png" src="_images/jan-17-2020_28_0.png" />
+<img alt="_images/jan-17-2020_25_0.png" src="_images/jan-17-2020_25_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -996,7 +881,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_29_0.png" src="_images/jan-17-2020_29_0.png" />
+<img alt="_images/jan-17-2020_26_0.png" src="_images/jan-17-2020_26_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1058,26 +943,26 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_33_0.png" src="_images/jan-17-2020_33_0.png" />
-<img alt="_images/jan-17-2020_33_1.png" src="_images/jan-17-2020_33_1.png" />
-<img alt="_images/jan-17-2020_33_2.png" src="_images/jan-17-2020_33_2.png" />
-<img alt="_images/jan-17-2020_33_3.png" src="_images/jan-17-2020_33_3.png" />
-<img alt="_images/jan-17-2020_33_4.png" src="_images/jan-17-2020_33_4.png" />
-<img alt="_images/jan-17-2020_33_5.png" src="_images/jan-17-2020_33_5.png" />
-<img alt="_images/jan-17-2020_33_6.png" src="_images/jan-17-2020_33_6.png" />
-<img alt="_images/jan-17-2020_33_7.png" src="_images/jan-17-2020_33_7.png" />
-<img alt="_images/jan-17-2020_33_8.png" src="_images/jan-17-2020_33_8.png" />
-<img alt="_images/jan-17-2020_33_9.png" src="_images/jan-17-2020_33_9.png" />
-<img alt="_images/jan-17-2020_33_10.png" src="_images/jan-17-2020_33_10.png" />
-<img alt="_images/jan-17-2020_33_11.png" src="_images/jan-17-2020_33_11.png" />
-<img alt="_images/jan-17-2020_33_12.png" src="_images/jan-17-2020_33_12.png" />
-<img alt="_images/jan-17-2020_33_13.png" src="_images/jan-17-2020_33_13.png" />
-<img alt="_images/jan-17-2020_33_14.png" src="_images/jan-17-2020_33_14.png" />
-<img alt="_images/jan-17-2020_33_15.png" src="_images/jan-17-2020_33_15.png" />
-<img alt="_images/jan-17-2020_33_16.png" src="_images/jan-17-2020_33_16.png" />
-<img alt="_images/jan-17-2020_33_17.png" src="_images/jan-17-2020_33_17.png" />
-<img alt="_images/jan-17-2020_33_18.png" src="_images/jan-17-2020_33_18.png" />
-<img alt="_images/jan-17-2020_33_19.png" src="_images/jan-17-2020_33_19.png" />
+<img alt="_images/jan-17-2020_30_0.png" src="_images/jan-17-2020_30_0.png" />
+<img alt="_images/jan-17-2020_30_1.png" src="_images/jan-17-2020_30_1.png" />
+<img alt="_images/jan-17-2020_30_2.png" src="_images/jan-17-2020_30_2.png" />
+<img alt="_images/jan-17-2020_30_3.png" src="_images/jan-17-2020_30_3.png" />
+<img alt="_images/jan-17-2020_30_4.png" src="_images/jan-17-2020_30_4.png" />
+<img alt="_images/jan-17-2020_30_5.png" src="_images/jan-17-2020_30_5.png" />
+<img alt="_images/jan-17-2020_30_6.png" src="_images/jan-17-2020_30_6.png" />
+<img alt="_images/jan-17-2020_30_7.png" src="_images/jan-17-2020_30_7.png" />
+<img alt="_images/jan-17-2020_30_8.png" src="_images/jan-17-2020_30_8.png" />
+<img alt="_images/jan-17-2020_30_9.png" src="_images/jan-17-2020_30_9.png" />
+<img alt="_images/jan-17-2020_30_10.png" src="_images/jan-17-2020_30_10.png" />
+<img alt="_images/jan-17-2020_30_11.png" src="_images/jan-17-2020_30_11.png" />
+<img alt="_images/jan-17-2020_30_12.png" src="_images/jan-17-2020_30_12.png" />
+<img alt="_images/jan-17-2020_30_13.png" src="_images/jan-17-2020_30_13.png" />
+<img alt="_images/jan-17-2020_30_14.png" src="_images/jan-17-2020_30_14.png" />
+<img alt="_images/jan-17-2020_30_15.png" src="_images/jan-17-2020_30_15.png" />
+<img alt="_images/jan-17-2020_30_16.png" src="_images/jan-17-2020_30_16.png" />
+<img alt="_images/jan-17-2020_30_17.png" src="_images/jan-17-2020_30_17.png" />
+<img alt="_images/jan-17-2020_30_18.png" src="_images/jan-17-2020_30_18.png" />
+<img alt="_images/jan-17-2020_30_19.png" src="_images/jan-17-2020_30_19.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1091,7 +976,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x7f008e628670&gt;]
 </pre></div>
 </div>
-<img alt="_images/jan-17-2020_34_1.png" src="_images/jan-17-2020_34_1.png" />
+<img alt="_images/jan-17-2020_31_1.png" src="_images/jan-17-2020_31_1.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1105,7 +990,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x7f008bf84f10&gt;]
 </pre></div>
 </div>
-<img alt="_images/jan-17-2020_35_1.png" src="_images/jan-17-2020_35_1.png" />
+<img alt="_images/jan-17-2020_32_1.png" src="_images/jan-17-2020_32_1.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1161,7 +1046,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x7f00881a1820&gt;]
 </pre></div>
 </div>
-<img alt="_images/jan-17-2020_40_1.png" src="_images/jan-17-2020_40_1.png" />
+<img alt="_images/jan-17-2020_37_1.png" src="_images/jan-17-2020_37_1.png" />
 </div>
 </div>
 <div class="section" id="compare-to-previous-fits">
@@ -1194,7 +1079,7 @@ array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_46_0.png" src="_images/jan-17-2020_46_0.png" />
+<img alt="_images/jan-17-2020_43_0.png" src="_images/jan-17-2020_43_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -4037,7 +3922,7 @@ score:		0.4924
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_58_0.png" src="_images/jan-17-2020_58_0.png" />
+<img alt="_images/jan-17-2020_55_0.png" src="_images/jan-17-2020_55_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -4067,7 +3952,7 @@ score:		0.4924
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_59_0.png" src="_images/jan-17-2020_59_0.png" />
+<img alt="_images/jan-17-2020_56_0.png" src="_images/jan-17-2020_56_0.png" />
 </div>
 </div>
 </div>
@@ -4555,7 +4440,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_74_0.png" src="_images/jan-17-2020_74_0.png" />
+<img alt="_images/jan-17-2020_71_0.png" src="_images/jan-17-2020_71_0.png" />
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([42, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 64, 65,
        67, 69])
 </pre></div>
@@ -4586,7 +4471,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_75_0.png" src="_images/jan-17-2020_75_0.png" />
+<img alt="_images/jan-17-2020_72_0.png" src="_images/jan-17-2020_72_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -4626,7 +4511,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_78_0.png" src="_images/jan-17-2020_78_0.png" />
+<img alt="_images/jan-17-2020_75_0.png" src="_images/jan-17-2020_75_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -4654,7 +4539,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_79_0.png" src="_images/jan-17-2020_79_0.png" />
+<img alt="_images/jan-17-2020_76_0.png" src="_images/jan-17-2020_76_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -4667,7 +4552,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_82_0.png" src="_images/jan-17-2020_82_0.png" />
+<img alt="_images/jan-17-2020_79_0.png" src="_images/jan-17-2020_79_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -4708,7 +4593,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_85_0.png" src="_images/jan-17-2020_85_0.png" />
+<img alt="_images/jan-17-2020_82_0.png" src="_images/jan-17-2020_82_0.png" />
 </div>
 </div>
 </div>
@@ -4789,7 +4674,7 @@ score:		0.4879
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_93_0.png" src="_images/jan-17-2020_93_0.png" />
+<img alt="_images/jan-17-2020_90_0.png" src="_images/jan-17-2020_90_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -5035,7 +4920,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_104_0.png" src="_images/jan-17-2020_104_0.png" />
+<img alt="_images/jan-17-2020_101_0.png" src="_images/jan-17-2020_101_0.png" />
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 66, 69,
        73])
 </pre></div>
@@ -5066,7 +4951,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_105_0.png" src="_images/jan-17-2020_105_0.png" />
+<img alt="_images/jan-17-2020_102_0.png" src="_images/jan-17-2020_102_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -5106,7 +4991,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_108_0.png" src="_images/jan-17-2020_108_0.png" />
+<img alt="_images/jan-17-2020_105_0.png" src="_images/jan-17-2020_105_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -5134,7 +5019,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_109_0.png" src="_images/jan-17-2020_109_0.png" />
+<img alt="_images/jan-17-2020_106_0.png" src="_images/jan-17-2020_106_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -5147,7 +5032,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_112_0.png" src="_images/jan-17-2020_112_0.png" />
+<img alt="_images/jan-17-2020_109_0.png" src="_images/jan-17-2020_109_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -5188,7 +5073,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_115_0.png" src="_images/jan-17-2020_115_0.png" />
+<img alt="_images/jan-17-2020_112_0.png" src="_images/jan-17-2020_112_0.png" />
 </div>
 </div>
 </div>
@@ -5534,7 +5419,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_126_0.png" src="_images/jan-17-2020_126_0.png" />
+<img alt="_images/jan-17-2020_123_0.png" src="_images/jan-17-2020_123_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -5990,7 +5875,7 @@ scabbers_2016-09-28 0.008 52 0.6536971191909041 0.43696813250814087
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-17-2020_133_0.png" src="_images/jan-17-2020_133_0.png" />
+<img alt="_images/jan-17-2020_130_0.png" src="_images/jan-17-2020_130_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
