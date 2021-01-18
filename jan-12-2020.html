@@ -366,6 +366,94 @@
 </div>
 </div>
 </div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">]})</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">reset_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>a</th>
+      <th>b</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>a</th>
+      <td>1.000000</td>
+      <td>0.755929</td>
+    </tr>
+    <tr>
+      <th>b</th>
+      <td>0.755929</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0     5
+1    10
+2    15
+Name: a, dtype: int8
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">a</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0     5
+1    10
+2    15
+Name: a, dtype: int8
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">([</span><span class="s1">&#39;mcc&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;mcc&#39;]
+</pre></div>
+</div>
+</div>
+</div>
 <div class="section" id="simulation">
 <h2>Simulation<a class="headerlink" href="#simulation" title="Permalink to this headline">¶</a></h2>
 <p>In this seciton I will briefly describe details of the simulation.</p>
@@ -420,11 +508,11 @@ dim X:	8,
 dim Y:	8
 </pre></div>
 </div>
-<img alt="_images/jan-12-2020_5_1.png" src="_images/jan-12-2020_5_1.png" />
+<img alt="_images/jan-12-2020_9_1.png" src="_images/jan-12-2020_9_1.png" />
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
-<img alt="_images/jan-12-2020_5_3.png" src="_images/jan-12-2020_5_3.png" />
+<img alt="_images/jan-12-2020_9_3.png" src="_images/jan-12-2020_9_3.png" />
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>matrix values:
 
 X:
@@ -499,7 +587,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_10_0.png" src="_images/jan-12-2020_10_0.png" />
+<img alt="_images/jan-12-2020_14_0.png" src="_images/jan-12-2020_14_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -620,7 +708,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_corr</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">corr2d</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     
@@ -629,7 +717,7 @@ X:  89 degrees,   Y:  92 degrees
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
             <span class="n">corrs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">pearsonr</span><span class="p">(</span><span class="n">true</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">pred</span><span class="p">[:,</span> <span class="n">j</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
             
-    <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">corr_proj</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">corrs</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">mean_corr</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">corrs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">idxs</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
     <span class="n">mean_corr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mean_corr</span><span class="p">)</span>
             
@@ -640,8 +728,20 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span><span class="p">,</span> <span class="n">avg_corr_proj</span> <span class="o">=</span> <span class="n">find_corr</span><span class="p">(</span><span class="n">sim</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">],</span> <span class="n">vh</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-<span class="n">corr_latent</span><span class="p">,</span> <span class="n">avg_corr_latent</span> <span class="o">=</span> <span class="n">find_corr</span><span class="p">(</span><span class="n">sim</span><span class="p">[</span><span class="s1">&#39;z_train&#39;</span><span class="p">],</span> <span class="n">u</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span><span class="p">,</span> <span class="n">avg_corr_proj</span> <span class="o">=</span> <span class="n">corr2d</span><span class="p">(</span><span class="n">sim</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">],</span> <span class="n">vh</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">corr_latent</span><span class="p">,</span> <span class="n">avg_corr_latent</span> <span class="o">=</span> <span class="n">corr2d</span><span class="p">(</span><span class="n">sim</span><span class="p">[</span><span class="s1">&#39;z_train&#39;</span><span class="p">],</span> <span class="n">u</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">corr_latent</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>((2, 8), (2, 8))
 </pre></div>
 </div>
 </div>
@@ -666,84 +766,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_22_0.png" src="_images/jan-12-2020_22_0.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([[-0.75176289,  0.67451306, -0.01890765,  0.01019979, -0.02384396,
-         0.01365751,  0.00871914, -0.01859176],
-       [ 0.73974613,  0.6577764 ,  0.10536968, -0.05486639,  0.13636714,
-        -0.07570445, -0.04834066,  0.10613632]])
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">corr_proj</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">idxs</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([[0, 0, 1, 1, 1, 1, 1, 1],
-       [1, 1, 0, 0, 0, 0, 0, 0]])
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idxs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([1, 1, 0, 0, 0, 0, 0, 0])
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.6577763966732155
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>-0.7517628918619289
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_proj</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.6745130615114305
-</pre></div>
-</div>
+<img alt="_images/jan-12-2020_27_0.png" src="_images/jan-12-2020_27_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -849,7 +872,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_41_0.png" src="_images/jan-12-2020_41_0.png" />
+<img alt="_images/jan-12-2020_39_0.png" src="_images/jan-12-2020_39_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -902,7 +925,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_44_0.png" src="_images/jan-12-2020_44_0.png" />
+<img alt="_images/jan-12-2020_42_0.png" src="_images/jan-12-2020_42_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -921,7 +944,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_45_0.png" src="_images/jan-12-2020_45_0.png" />
+<img alt="_images/jan-12-2020_43_0.png" src="_images/jan-12-2020_43_0.png" />
 </div>
 </div>
 </div>
@@ -987,7 +1010,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_51_0.png" src="_images/jan-12-2020_51_0.png" />
+<img alt="_images/jan-12-2020_49_0.png" src="_images/jan-12-2020_49_0.png" />
 </div>
 </div>
 </div>
@@ -1047,7 +1070,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_54_0.png" src="_images/jan-12-2020_54_0.png" />
+<img alt="_images/jan-12-2020_52_0.png" src="_images/jan-12-2020_52_0.png" />
 </div>
 </div>
 </div>
@@ -1104,7 +1127,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_60_0.png" src="_images/jan-12-2020_60_0.png" />
+<img alt="_images/jan-12-2020_58_0.png" src="_images/jan-12-2020_58_0.png" />
 </div>
 </div>
 <div class="section" id="id1">
@@ -1169,7 +1192,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_64_0.png" src="_images/jan-12-2020_64_0.png" />
+<img alt="_images/jan-12-2020_62_0.png" src="_images/jan-12-2020_62_0.png" />
 </div>
 </div>
 </div>
@@ -1229,7 +1252,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_67_0.png" src="_images/jan-12-2020_67_0.png" />
+<img alt="_images/jan-12-2020_65_0.png" src="_images/jan-12-2020_65_0.png" />
 </div>
 </div>
 </div>
@@ -1312,7 +1335,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_76_0.png" src="_images/jan-12-2020_76_0.png" />
+<img alt="_images/jan-12-2020_74_0.png" src="_images/jan-12-2020_74_0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1330,7 +1353,7 @@ X:  89 degrees,   Y:  92 degrees
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x7fd857d514f0&gt;]
 </pre></div>
 </div>
-<img alt="_images/jan-12-2020_77_1.png" src="_images/jan-12-2020_77_1.png" />
+<img alt="_images/jan-12-2020_75_1.png" src="_images/jan-12-2020_75_1.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1350,7 +1373,7 @@ X:  89 degrees,   Y:  92 degrees
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x7fd857c73670&gt;]
 </pre></div>
 </div>
-<img alt="_images/jan-12-2020_78_1.png" src="_images/jan-12-2020_78_1.png" />
+<img alt="_images/jan-12-2020_76_1.png" src="_images/jan-12-2020_76_1.png" />
 </div>
 </div>
 </div>
@@ -1416,7 +1439,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_85_0.png" src="_images/jan-12-2020_85_0.png" />
+<img alt="_images/jan-12-2020_83_0.png" src="_images/jan-12-2020_83_0.png" />
 </div>
 </div>
 <div class="section" id="id4">
@@ -1473,7 +1496,7 @@ X:  89 degrees,   Y:  92 degrees
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/jan-12-2020_89_0.png" src="_images/jan-12-2020_89_0.png" />
+<img alt="_images/jan-12-2020_87_0.png" src="_images/jan-12-2020_87_0.png" />
 </div>
 </div>
 </div>
