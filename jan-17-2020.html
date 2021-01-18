@@ -675,10 +675,10 @@ train: 405,  test: 95
 <div class="section" id="a-grand-challenge-in-neuroscience">
 <h3>A grand challenge in neuroscience<a class="headerlink" href="#a-grand-challenge-in-neuroscience" title="Permalink to this headline">¶</a></h3>
 <p>Now let’s allow our imaginations to run really wild and think about the best possible model of the brain.  What would this model look like? It will have a few inputs including:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- relevant degrees of freedom in the state of the world during the experiment, e.g. stimuli presented, and other experimentally controlable variables,
-- neural activity recorded from a subset of neurons from a subset of relevant regions in the brain during and after stimulus presentation
-</pre></div>
-</div>
+<ul class="simple">
+<li><p>relevant degrees of freedom in the state of the world during the experiment, e.g. stimuli presented, and other experimentally controlable variables,</p></li>
+<li><p>neural activity recorded from a subset of neurons from a subset of relevant regions in the brain during and after stimulus presentation</p></li>
+</ul>
 <p>The model then uses the available data to infer something about the internal state of the brain and how it was affected as a result of external perturbation.  It then uses this information to accuraterly predict the resulting behavior that occurs following stimulation.  This model should not care about the number of neurons recorded because different experiments will have different neurons from potentially different parts of the cortex each time. Such a model will solve the brain problem to a great extent and will be nobel prize worthy because of the magnitude of its impact.  I think about this quite often, but can’t see a clear way forward.</p>
 <p>Say <span class="math notranslate nohighlight">\(X \in \mathbb{R}^{T \,\times\, N}\)</span> is a matrix that contains neural activity across time across neurons.  Its columns <span class="math notranslate nohighlight">\(x_i \in \mathbb{R}^T\)</span> contain trajectories from individual neurons. Suppose we want to find a function that takes neural activity <span class="math notranslate nohighlight">\(X \equiv \{x_i | i = 1, \dots N\}\)</span> as input and predicts something (such as hit vs miss etc).  Also we do not want this function to be sensitive to number of neurons.  Of course, having more neurons present in the dataset should improve the quality of its predictions, but it should not break down completely if there are different number of neurons present in different datasets.  A function that is invariant to number of neurons should be also invariant to premutation in neuron space.  It should care only about presence of a neuron, not how I’m feeding it into the model.  What are functions that have this characteristics?  A very simple function that fits this description is this one:</p>
 <div class="math notranslate nohighlight">
@@ -741,11 +741,31 @@ mcc:		0.5771
     <span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">num_ccs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">86</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
     <span class="n">cca_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
-    <span class="n">clf_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="n">clf_regs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "f0542f7ebbae4f9b892449aceb1cf705", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "7691857367d64c038dc1af0f02570b78", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "2e855df2a4a948fda97a33b16a234aa7", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "b78384668f0e4d0989d609e0eb7815a9", "version_major": 2, "version_minor": 0}
+</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
